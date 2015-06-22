@@ -1,8 +1,8 @@
 'use strict';
 
-var buffer = require('buffer');
 var AsyncStorage = require('react-native').AsyncStorage;
 var _ = require('lodash');
+var encoding = require('NativeModules').Encoding;
 
 var authKey = 'auth';
 var userKey = 'user';
@@ -33,41 +33,43 @@ class AuthService {
   }
 
   login(creds, cb) {
-    var basicAuth = new buffer.Buffer(`${creds.username}:${creds.password}`);
-    var encodedAuth = basicAuth.toString('base64');
-    fetch('https://api.github.com/user', {
-      headers: {
-        'Authorization': `Basic ${encodedAuth}`
-      }
-    })
-    .then((response) => {
-      if(response.status >= 200 && response.status < 300) {
-        return response;
-      }
-      throw {
-        badCredentials: response.status === 401,
-        unknownError: response.status !== 401
-      }
-    })
-    .then((response)=>{
-      return response.json();
-    })
-    .then((result) => {
-      AsyncStorage.multiSet([
-        [authKey, encodedAuth],
-        [userKey, JSON.stringify(result)]
-      ], (err)=>{
-        if(err) {
-          throw err;
+    var basicAuth = `${creds.username}:${creds.password}`;
+    encoding.base64Encode(basicAuth, (encodedAuth)=>{
+      console.log(encodedAuth);
+      fetch('https://api.github.com/user', {
+        headers: {
+          'Authorization': `Basic ${encodedAuth}`
         }
-        return cb({success: true});
-      });
-    })
-    .catch((err)=> {
-      cb(Object.assign({
-        success: false
-      }, err));
-    })
+      })
+      .then((response) => {
+        if(response.status >= 200 && response.status < 300) {
+          return response;
+        }
+        throw {
+          badCredentials: response.status === 401,
+          unknownError: response.status !== 401
+        }
+      })
+      .then((response)=>{
+        return response.json();
+      })
+      .then((result) => {
+        AsyncStorage.multiSet([
+          [authKey, encodedAuth],
+          [userKey, JSON.stringify(result)]
+        ], (err)=>{
+          if(err) {
+            throw err;
+          }
+          return cb({success: true});
+        });
+      })
+      .catch((err)=> {
+        cb(Object.assign({
+          success: false
+        }, err));
+      })
+    });
   }
 }
 module.exports = new AuthService();

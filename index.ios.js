@@ -21,8 +21,8 @@ var GithubBrowser = React.createClass({
     AuthService.getAuthInfo((err, authInfo)=>{
       this.setState({
         checkingAuth: false,
-        isLoggedIn: authInfo !== null
-      })
+        isLoggedIn: authInfo != null
+      });
     });
   },
   render: function() {

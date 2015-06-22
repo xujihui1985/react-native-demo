@@ -31,18 +31,20 @@ class Feed extends Component {
 
   fetchFeed() {
     require('./AuthService').getAuthInfo((err, authInfo) => {
-      var url = `https://api.github.com/users/${authInfo.user.login}/received_events`;
-      fetch(url, {
-        headers: authInfo.header
-      })
-      .then(response => response.json())
-      .then((responseData) => {
-        var feedItems = responseData.filter(event=> event.type === 'WatchEvent');
-        this.setState({
-          dataSource: this.state.dataSource.cloneWithRows(feedItems),
-          showProgress: false   
+      if(authInfo) {
+        var url = `https://api.github.com/users/${authInfo.user.login}/received_events`;
+        fetch(url, {
+          headers: authInfo.header
+        })
+        .then(response => response.json())
+        .then((responseData) => {
+          var feedItems = responseData.filter(event=> event.type === 'WatchEvent');
+          this.setState({
+            dataSource: this.state.dataSource.cloneWithRows(feedItems),
+            showProgress: false   
+          });
         });
-      });
+      }
     });
   }
 

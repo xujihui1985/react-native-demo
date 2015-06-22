@@ -11,6 +11,7 @@ var {
 } = React;
 
 var Feed = require('./Feed');
+var Search = require('./Search');
 
 class AppContainer extends Component {
   constructor(props) {
@@ -38,7 +39,12 @@ class AppContainer extends Component {
           title="Search"
           selected={this.state.selectedTab === 'search'} 
           onPress={()=> this.setState({selectedTab: 'search'})} >
-          <Text style={styles.welcome}> Tab 2</Text>
+          <NavigatorIOS style={{
+            flex: 1
+          }} initialRoute={{
+            component: Search,
+            title: 'Search'
+          }} />
         </TabBarIOS.Item>
       </TabBarIOS>
     );
@@ -50,7 +56,7 @@ var styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#F5FCFF'
   },
   welcome: {
     fontSize: 20,
